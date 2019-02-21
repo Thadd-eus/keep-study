@@ -6,13 +6,14 @@ import com.study.demo.util.DemoUtil;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisShardInfo;
 
-import java.io.UnsupportedEncodingException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 /**
  * redis demo
  */
-public class RedisDemo{
+public class VoteFuncDemo{
 
     private static Jedis jedis;
     private static final List<String> BOOK_NAMES = Arrays.asList("小王子","围城","活着","追风筝的人","性学报告","生命中不能承受之轻","麦田里的守望者",
@@ -23,9 +24,10 @@ public class RedisDemo{
     private static final String SCORE_KEY = "score" + SPLIT;
     private static final String VOTED_KEY = "voted" + SPLIT;
     private static final String USER_KEY = "user" + SPLIT;
+    private static final Double SCORE_STEP = 50.00;
     static {
         JedisShardInfo jedisShardInfo = new JedisShardInfo("127.0.0.1",6379);
-        jedisShardInfo.setPassword("123456");
+//        jedisShardInfo.setPassword("123456");
         jedis = jedisShardInfo.createResource();
     }
 
@@ -37,6 +39,10 @@ public class RedisDemo{
      */
     public static void main(String[] args) {
         String articleId = DemoUtil.getRandomInt(6);
+        String userId = DemoUtil.getRandomInt(6);
+        publishArticle(articleId);
+        System.out.println(articleId);
+        userVoted(articleId,userId);
     }
 
     public static void userVoted(String articleId,String userId){
@@ -47,7 +53,9 @@ public class RedisDemo{
             //记录投票人
             jedis.sadd(cacheKey,value);
             //增加分数
-            
+            jedis.zincrby(SCORE_KEY,SCORE_STEP,ARTICLE_INFO_KEY + articleId);
+            //修改文章信息
+            jedis.hincrBy(ARTICLE_INFO_KEY + articleId,"voted",1L);
         }else{
             System.err.println("========你已经投过票，请勿重复投票========");
         }
@@ -76,10 +84,10 @@ public class RedisDemo{
     //记录文章信息
     private static void rememberArticle(String articleId){
         jedis.hset(ARTICLE_INFO_KEY + articleId,"title","title " + DemoUtil.getRandomStr(6));
-        jedis.hset(ARTICLE_INFO_KEY + articleId,"creator","user:" + DemoUtil.getRandomStr(6));
+        jedis.hset(ARTICLE_INFO_KEY + articleId,"creator","user:" + DemoUtil.getRandomInt(6));
         jedis.hset(ARTICLE_INFO_KEY + articleId,"create_time",new Date().getTime() + "");
         jedis.hset(ARTICLE_INFO_KEY + articleId,"desc",DemoUtil.getRandomStr(10));
-        jedis.hset(ARTICLE_INFO_KEY + articleId,"voted","0 ");
+        jedis.hset(ARTICLE_INFO_KEY + articleId,"voted","0");
     }
 
 
