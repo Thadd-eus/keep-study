@@ -1,5 +1,8 @@
 package com.study.demo.util;
 
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisShardInfo;
+
 import java.io.UnsupportedEncodingException;
 import java.util.Random;
 
@@ -8,6 +11,15 @@ import java.util.Random;
  */
 public class DemoUtil {
 
+    public static class Constant{
+        public static final String SPLIT_SEM = ":";
+    }
+
+    public static Jedis getJedis(){
+        JedisShardInfo jedisShardInfo = new JedisShardInfo("127.0.0.1",6379);
+//        jedisShardInfo.setPassword("123456");
+        return jedisShardInfo.createResource();
+    }
     /**
      * 随机生成数字字符串
      */

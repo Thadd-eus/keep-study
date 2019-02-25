@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class VoteFuncDemo{
 
-    private static Jedis jedis;
+    private static Jedis jedis = DemoUtil.getJedis();
     private static final List<String> BOOK_NAMES = Arrays.asList("小王子","围城","活着","追风筝的人","性学报告","生命中不能承受之轻","麦田里的守望者",
             "飞鸟集","爱恋中的女人","婚姻的镜子","失乐园","男人这东西","婚姻的镜子","挪威的森林");
     private static final String SPLIT = ":";
@@ -25,11 +25,6 @@ public class VoteFuncDemo{
     private static final String VOTED_KEY = "voted" + SPLIT;
     private static final String USER_KEY = "user" + SPLIT;
     private static final Double SCORE_STEP = 50.00;
-    static {
-        JedisShardInfo jedisShardInfo = new JedisShardInfo("127.0.0.1",6379);
-//        jedisShardInfo.setPassword("123456");
-        jedis = jedisShardInfo.createResource();
-    }
 
     /**
      * 评分表：文章ID：分数 利用有序集合，方便后续获取前x的排名
